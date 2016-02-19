@@ -10,14 +10,18 @@ package com.KjeMar.LocationExtension
 	{
 		private var context:ExtensionContext;
 		private var locationArray:Array;
+		private var currentLocation:Location;
 		
 		public function AndroidLocationExtension(target:IEventDispatcher=null)
 		{
 			super(target);
 			if(!context)
 				context = ExtensionContext.createExtensionContext("com.KjeMar.LocationExtension", null);
-			if(context)
+			if(context){
 				context.addEventListener(StatusEvent.STATUS,statusHandle);
+				context.call("ffiStartListening", null);
+			}
+			
 		}
 		
 		// listener function
@@ -26,12 +30,18 @@ package com.KjeMar.LocationExtension
 			var eventCode:String = event.code; // GPS
 			var location:String = event.level; // lat, lng
 			locationArray = location.split(",");
+			var inputArray:Array = new Array();
+			for each(var input:String in locationArray){
+				inputArray.push(int(input));
+			}
+			currentLocation = new Location(eventCode, inputArray[0], inputArray[1]);
 			var locationEvent:Event = new Event("GPS");
-			dispatchEvent(locationEvent);
+			this.dispatchEvent(locationEvent);
 			
 		}
 		
 		public function getLocation():Array{
+			locationArray = currentLocation.getInput();
 			return locationArray;
 		}
 	}
