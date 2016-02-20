@@ -19,7 +19,8 @@ package com.KjeMar.LocationExtension
 				context = ExtensionContext.createExtensionContext("com.KjeMar.LocationExtension", null);
 			if(context){
 				context.addEventListener(StatusEvent.STATUS,statusHandle);
-				context.call("ffiStartListening", null);
+				/*context.call("ffiStartListening", null);*/
+				context.call("ffiStartBeaconListening", null);
 			}
 			
 		}
