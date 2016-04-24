@@ -30,6 +30,7 @@ package com.KjeMar.LocationExtension
 		}
 		public function getInput():Array{
 			var inputArray:Array = new Array();
+			inputArray.push(type);
 			switch(type){
 				case "GPS":
 					inputArray.push(latitude);
@@ -55,7 +56,6 @@ package com.KjeMar.LocationExtension
 				case "GPS":
 					if(this.type != "Beacon" && this.type != "WiFi"){
 						this.type = inputType;
-						
 					}
 					this.latitude = input1;
 					this.longitude = input2;
@@ -68,7 +68,6 @@ package com.KjeMar.LocationExtension
 				case "WiFi":
 					if(this.type != "Beacon"){
 						this.type = inputType;
-						
 					}
 					this.wifiSSID = input1;
 					break;

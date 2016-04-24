@@ -28,31 +28,8 @@ package com.KjeMar.LocationExtension
 		public function statusHandle(event:StatusEvent):void{
 			trace(event);
 			checkEvent(event);
-			/*var eventCode:String = event.code; // GPS
-			var location:String = event.level; // lat, lng
-			locationArray = location.split(",");
-			var inputArray:Array = new Array();
-			if(eventCode != "WiFi"){
-				for each(var input:String in locationArray){
-					inputArray.push(input);
-				}
-				if(currentLocation == null){
-					currentLocation = new Location(eventCode, inputArray[0], inputArray[1]);
-				}
-				else{
-					currentLocation.newInput(eventCode, inputArray[0], inputArray[1]);
-				}
-			}
-			else{
-				if(currentLocation == null){
-					currentLocation = new Location(eventCode, event.level);
-				}
-				else{
-					currentLocation.newInput(eventCode, event.level);
-				}
-			}*/
 			
-			var locationEvent:Event = new Event("GPS");
+			var locationEvent:Event = new Event("locationChanged");
 			this.dispatchEvent(locationEvent);
 			
 		}
@@ -89,8 +66,26 @@ package com.KjeMar.LocationExtension
 		public function startWifiListening():void{
 			if(context){
 				context.call("ffiStartWifiListening", null);
+				
 			}
 		}
+		
+		public function stopWifiListening():void{
+			if(context){
+				context.call("ffiStopWifiListening", null);
+				
+			}
+		}
+		
+		public function stopGPSListening():void{
+			if(context){
+				context.call("ffiStopGPSListening", null);
+				
+			}
+		}
+		
+		
+		
 		
 		public function checkEvent(event:StatusEvent):void{
 			
