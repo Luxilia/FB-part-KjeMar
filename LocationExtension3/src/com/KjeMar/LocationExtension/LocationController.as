@@ -33,6 +33,7 @@ package com.KjeMar.LocationExtension
 			var locationFile:File = File.applicationStorageDirectory.resolvePath("test.txt");
 			fileStream.open(locationFile,FileMode.READ);
 			var locationString:String = fileStream.readMultiByte(locationFile.size,File.systemCharset);
+			fileStream.close();
 			var locationArray:Array = locationString.split(",");
 			var loadedLocation:Location;
 			if(locationArray[0] == "GPS" || locationArray[0] == "Beacon"){

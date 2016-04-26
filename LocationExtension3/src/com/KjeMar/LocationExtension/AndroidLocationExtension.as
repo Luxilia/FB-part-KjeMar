@@ -12,6 +12,7 @@ package com.KjeMar.LocationExtension
 		private var locationArray:Array;
 		private var currentLocation:Location;
 		private var lastBeaconInput:String;
+		private var locationController:LocationController;
 		
 		public function AndroidLocationExtension(target:IEventDispatcher=null)
 		{
@@ -138,6 +139,22 @@ package com.KjeMar.LocationExtension
 			else{
 				currentLocation.newInput(event.code, event.level);
 			}
+		}
+		
+		public function getLocationFromFileSystem():void{
+			if(locationController == null){
+				locationController = new LocationController();
+			}
+			currentLocation = locationController.loadLocationFromFile();
+			var locationEvent:Event = new Event("locationChanged");
+			this.dispatchEvent(locationEvent);
+		}
+		
+		public function saveCurrentLocationToFileSystem():void{
+			if(locationController == null){
+				locationController = new LocationController();
+			}
+			locationController.saveLocationToFile(currentLocation);
 		}
 	}
 }
