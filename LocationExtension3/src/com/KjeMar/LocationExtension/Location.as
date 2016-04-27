@@ -9,6 +9,7 @@ package com.KjeMar.LocationExtension
 		public var beaconUpper:String;
 		public var beaconLower:String;
 		public var wifiSSID:String;
+		public var name:String;
 		
 		
 		public function Location(inputType:String, input1:String = null, input2:String = null)
