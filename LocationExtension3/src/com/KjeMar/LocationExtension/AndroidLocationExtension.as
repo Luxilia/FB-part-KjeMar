@@ -4,7 +4,9 @@ package com.KjeMar.LocationExtension
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	import flash.events.StatusEvent;
+	import flash.events.TimerEvent;
 	import flash.external.ExtensionContext;
+	import flash.utils.Timer;
 	
 	public class AndroidLocationExtension extends EventDispatcher
 	{
@@ -13,17 +15,48 @@ package com.KjeMar.LocationExtension
 		private var currentLocation:Location;
 		private var lastBeaconInput:String;
 		private var locationController:LocationController;
+		private var timer:Timer;
+		private var savedLocation:Boolean;
+
 		
 		public function AndroidLocationExtension(target:IEventDispatcher=null)
 		{
 			super(target);
+			locationController = new LocationController();
 			if(!context)
 				context = ExtensionContext.createExtensionContext("com.KjeMar.LocationExtension", null);
 			if(context){
 				context.addEventListener(StatusEvent.STATUS,statusHandle);
 			}
-			
+			loadLocations();
+			timer = new Timer(20000, 0);
+			timer.addEventListener(TimerEvent.TIMER, checkCurrentLocation);
+			timer.start();
 		}
+		
+		private function checkCurrentLocation(event:Event):void{
+			if(currentLocation != null) {
+				
+				if(locationController.compareLocations(currentLocation)) {
+					savedLocation = true;
+				}else {
+					savedLocation = false;
+				}
+				var testEvent:Event = new Event("testEvent");
+				this.dispatchEvent(testEvent);
+			}
+		}
+		
+		public function getSavedLocation():Boolean{
+			return savedLocation;
+		}
+		
+		private function loadLocations():void {
+			locationController.loadXmlData();
+
+		}
+		
+		
 		
 		// listener function
 		public function statusHandle(event:StatusEvent):void{
