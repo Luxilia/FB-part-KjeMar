@@ -2,16 +2,21 @@ package com.KjeMar.LocationExtension
 {
 	public class Location
 	{
+		public var type:String; // The location type
+		public var latitude:String; // Latitude for gps location
+		public var longitude:String; // Longitude for gps location
+		public var major:String; // Major value for beacon location
+		public var minor:String; // Minor value for beacon location 
+		public var wifiSSID:String; // SSID string for WiFi location
+		public var name:String; // Name of location
 		
-		public var type:String;
-		public var latitude:String;
-		public var longitude:String;
-		public var beaconUpper:String;
-		public var beaconLower:String;
-		public var wifiSSID:String;
-		public var name:String;
-		
-		
+		/**
+		 * Constructor for location object
+		 * 
+		 * @param inputType The location type
+		 * @param input1 First input for location (latitude, major, wifiSSID)
+		 * @param input2 Second input for location (longitude, minor)
+		 */
 		public function Location(inputType:String, input1:String = null, input2:String = null)
 		{
 			type = inputType;
@@ -21,14 +26,28 @@ package com.KjeMar.LocationExtension
 					longitude = input2;
 					break;
 				case "Beacon":
-					beaconUpper = input1;
-					beaconLower = input2;
+					major = input1;
+					minor = input2;
 					break;
 				case "WiFi":
 					wifiSSID = input1;
 			}
-			
 		}
+		
+		/**
+		 * Sets the name of the location
+		 * 
+		 * @param inputName Name of the location
+		 */
+		public function setName(inputName:String):void {
+			name = inputName;
+		}
+		
+		/**
+		 * Gets current location as Array
+		 * 
+		 * @return An array representing current location
+		 */
 		public function getInput():Array{
 			var inputArray:Array = new Array();
 			inputArray.push(type);
@@ -38,8 +57,8 @@ package com.KjeMar.LocationExtension
 					inputArray.push(longitude);
 					break;
 				case "Beacon":
-					inputArray.push(beaconUpper);
-					inputArray.push(beaconLower);
+					inputArray.push(major);
+					inputArray.push(minor);
 					break;
 				case "WiFi":
 					inputArray.push(wifiSSID);
@@ -49,9 +68,16 @@ package com.KjeMar.LocationExtension
 					break;
 			}
 			return inputArray;
-					
 		}
 		
+		/**
+		 * Updates the location object with input from native code
+		 * Prioritizes input type to keep the strongest type on top
+		 * 
+		 * @param inputType Type of the new input
+		 * @param input1 First parameter of new input (latitude, major, wifiSSID)
+		 * @param input2 Second parameter of new input (longitude, minor)
+		 */
 		public function newInput(inputType:String, input1:String = null, input2:String = null):void{
 			switch(inputType){
 				case "GPS":
@@ -63,8 +89,8 @@ package com.KjeMar.LocationExtension
 					break;
 				case "Beacon":
 					this.type = inputType;
-					this.beaconUpper = input1;
-					this.beaconLower = input2;
+					this.major = input1;
+					this.minor = input2;
 					break;
 				case "WiFi":
 					if(this.type != "Beacon"){
@@ -72,15 +98,17 @@ package com.KjeMar.LocationExtension
 					}
 					this.wifiSSID = input1;
 					break;
-					
 			}
 		}
 		
+		/**
+		 * Removes beacon input from location object
+		 * Updates location type to next highest priority, existing type 
+		 */
 		public function exitBeacon():void{
 			if(type == "Beacon"){
 				if(wifiSSID != null){
 					type = "WiFi";
-					
 				}
 				else if(latitude != null && longitude != null){
 					type = "GPS";
@@ -89,9 +117,14 @@ package com.KjeMar.LocationExtension
 					type = null;
 				}
 			}
-			beaconLower = null;
-			beaconUpper = null;
+			minor = null;
+			major = null;
 		}
+		
+		/**
+		 * Removes WiFi input from location object
+		 * Updates location type to GPS if exist
+		 */
 		public function exitWifi():void{
 			if(type == "WiFi"){
 				if(latitude != null && longitude != null){

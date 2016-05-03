@@ -8,18 +8,24 @@ package com.KjeMar.LocationExtension
 	import flash.external.ExtensionContext;
 	import flash.utils.Timer;
 	
-	public class AndroidLocationExtension extends EventDispatcher
+	public class SuperPosition extends EventDispatcher
 	{
-		private var context:ExtensionContext;
-		private var locationArray:Array;
-		private var currentLocation:Location;
-		private var lastBeaconInput:String;
-		private var locationController:LocationController;
-		private var timer:Timer;
-		private var savedLocation:Boolean;
+		private var context:ExtensionContext; // Extension context
+		private var locationArray:Array; // Array for holding variables of a location object
+		private var currentLocation:Location; // The current location
+		private var lastBeaconInput:String; // Helper to prevent false positives from beacons
+		private var locationController:LocationController; // Location controller instance
+		private var timer:Timer; // Timer for comparing locations
+		private var savedLocation:Boolean; // Is current location a saved location?
 
-		
-		public function AndroidLocationExtension(target:IEventDispatcher=null)
+		/**
+		 * The class constructor
+		 * 
+		 * Creates extension context for native code
+		 * Loads the saved locations from file 
+		 * Creates and starts a timer for comparing current location to saved locations
+		 */
+		public function SuperPosition(target:IEventDispatcher=null)
 		{
 			super(target);
 			locationController = new LocationController();
@@ -34,6 +40,12 @@ package com.KjeMar.LocationExtension
 			timer.start();
 		}
 		
+		/**
+		 * Eventlistener for timer
+		 * Checks if the current location is a saved location
+		 * 
+		 * @param event The calling event
+		 */
 		private function checkCurrentLocation(event:Event):void{
 			if(currentLocation != null) {
 				
@@ -47,80 +59,116 @@ package com.KjeMar.LocationExtension
 			}
 		}
 		
+		/**
+		 * Returns the savedLocation boolean
+		 * 
+		 * @return Boolean indicating if the location is a saved location
+		 */
 		public function getSavedLocation():Boolean{
 			return savedLocation;
 		}
 		
+		/**
+		 * Loads locations from file through location controller
+		 */
 		private function loadLocations():void {
 			locationController.loadXmlData();
-
-		}
+		}	
 		
-		
-		
-		// listener function
+		/**
+		 * Listens for status events from native code
+		 * Dispatches a location event 
+		 * 
+		 * @param event Status event from native code
+		 * 
+		 * @see dispatchEvent
+		 */
 		public function statusHandle(event:StatusEvent):void{
 			trace(event);
 			checkEvent(event);
 			
 			var locationEvent:Event = new Event("locationChanged");
 			this.dispatchEvent(locationEvent);
-			
 		}
+		
+		/**
+		 * Sends a call to native code to start gps listening
+		 */
 		public function startGPSListening():void{
 			if(context){
 				context.call("ffiStartGPSListening", null);
 			}
 		}
 		
+		/**
+		 * Returns the current location as an array
+		 * 
+		 * @return Array with string variables describing current location
+		 */
 		public function getLocation():Array{
 			locationArray = currentLocation.getInput();
 			return locationArray;
 		}
 		
+		/**
+		 * Sends a call to native code to start ranging beacons
+		 */
 		public function rangeBeacons():void{
 			if(context){
 				context.call("ffiStartBeaconListening", null);
 			}
 		}
 		
+		/*
 		public function checkBeacons():void{
 			if(context){
 				context.call("ffiCheckBeacons", null);
 			}
 		}
+		*/
 		
+		/**
+		 * Sends a call to native code to stop ranging beacons
+		 */
 		public function stopRangeBeacons():void{
 			if(context){
-				
 				context.call("ffiStopBeaconListening", null);
 			}
 		}
 		
+		/**
+		 * Sends a call to native code to start WiFi listening
+		 */
 		public function startWifiListening():void{
 			if(context){
 				context.call("ffiStartWifiListening", null);
-				
 			}
 		}
 		
+		/**
+		 * Sends a call to native code to stop WiFi listening
+		 */
 		public function stopWifiListening():void{
 			if(context){
 				context.call("ffiStopWifiListening", null);
-				
 			}
 		}
 		
+		/**
+		 * Sends a call to native code to stop gps listening
+		 */
 		public function stopGPSListening():void{
 			if(context){
 				context.call("ffiStopGPSListening", null);
-				
 			}
 		}
 		
-		
-		
-		
+		/**
+		 * Handles the status event from native code
+		 * Checks the type and calls the corresponding method
+		 * 
+		 * @param event Status event from native code
+		 */
 		public function checkEvent(event:StatusEvent):void{
 			
 			switch(event.code){
@@ -150,6 +198,11 @@ package com.KjeMar.LocationExtension
 			}
 		}
 		
+		/**
+		 * Adds variable data to the current location
+		 * 
+		 * @param event Status event from native code
+		 */
 		public function addLocationData(event:StatusEvent):void{
 			var inputArray:Array = new Array();
 			var location:String = event.level; 
@@ -165,6 +218,11 @@ package com.KjeMar.LocationExtension
 			}
 		}
 		
+		/**
+		 * Adds variable data to the current location, special case for WiFi input
+		 * 
+		 * @param event Status event from native code
+		 */
 		public function addWifiData(event:StatusEvent):void{
 			if(currentLocation == null){
 				currentLocation = new Location(event.code, event.level);
@@ -174,6 +232,7 @@ package com.KjeMar.LocationExtension
 			}
 		}
 		
+		/*
 		public function getLocationFromFileSystem():void{
 			if(locationController == null){
 				locationController = new LocationController();
@@ -182,7 +241,11 @@ package com.KjeMar.LocationExtension
 			var locationEvent:Event = new Event("locationChanged");
 			this.dispatchEvent(locationEvent);
 		}
+		*/
 		
+		/**
+		 * Saves current location to file system
+		 */
 		public function saveCurrentLocationToFileSystem():void{
 			if(locationController == null){
 				locationController = new LocationController();
